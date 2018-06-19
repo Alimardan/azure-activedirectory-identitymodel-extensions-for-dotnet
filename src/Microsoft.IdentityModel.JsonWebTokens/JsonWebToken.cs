@@ -37,16 +37,15 @@ namespace Microsoft.IdentityModel.JsonWebTokens
 {
     /// <summary>
     /// A <see cref="SecurityToken"/> designed for representing a JSON Web Token (JWT). 
-    /// Currently only supports tokens in JWS format.
     /// </summary>
     public class JsonWebToken : SecurityToken
     {
         /// <summary>
-        /// Initializes a new instance of <see cref="JsonWebToken"/> from a string in JWS Compact serialized format.
+        /// Initializes a new instance of <see cref="JsonWebToken"/> from a string in JWS or JWE Compact serialized format.
         /// </summary>
-        /// <param name="jwtEncodedString">A JSON Web Token that has been serialized in JWS Compact serialized format.</param>
+        /// <param name="jwtEncodedString">A JSON Web Token that has been serialized in JWS or JWE Compact serialized format.</param>
         /// <exception cref="ArgumentNullException">'jwtEncodedString' is null or empty.</exception>
-        /// <exception cref="ArgumentException">'jwtEncodedString' is not in JWS Compact serialized format.</exception>
+        /// <exception cref="ArgumentException">'jwtEncodedString' is not in JWS or JWE Compact serialization format.</exception>
         /// <remarks>
         /// The contents of the returned <see cref="JsonWebToken"/> have not been validated, the JSON Web Token is simply decoded. Validation can be accomplished using the validation methods in <see cref="JsonWebTokenHandler"/>
         /// </remarks>
@@ -64,8 +63,8 @@ namespace Microsoft.IdentityModel.JsonWebTokens
                     break;
             }
 
-            // JWS
-            if (count == JwtConstants.JwsSegmentCount)
+            // JWS or JWE
+            if (count == JwtConstants.JwsSegmentCount || count == JwtConstants.JweSegmentCount)
             {
                 var tokenParts = jwtEncodedString.Split('.');
                 Decode(tokenParts, jwtEncodedString);
@@ -90,7 +89,7 @@ namespace Microsoft.IdentityModel.JsonWebTokens
         /// Gets the 'value' of the 'actor' claim { actort, 'value' }.
         /// </summary>
         /// <remarks>If the 'actor' claim is not found, an empty string is returned.</remarks> 
-        public string Actor => Payload.Value<string>(JwtRegisteredClaimNames.Actort) ?? String.Empty;
+        public string Actor => Payload?.Value<string>(JwtRegisteredClaimNames.Actort) ?? String.Empty;
 
         /// <summary>
         /// Gets the 'value' of the 'alg' claim { alg, 'value' }.
@@ -130,6 +129,9 @@ namespace Microsoft.IdentityModel.JsonWebTokens
                 List<Claim> claims = new List<Claim>();
                 string issuer = this.Issuer ?? ClaimsIdentity.DefaultIssuer;
 
+                if (Payload == null)
+                    return claims;
+
                 // there is some code redundancy here that was not factored as this is a high use method. Each identity received from the host will pass through here.
                 foreach (var entry in Payload)
                 {
@@ -166,6 +168,12 @@ namespace Microsoft.IdentityModel.JsonWebTokens
         public string Cty => Header.Value<string>(JwtHeaderParameterNames.Cty) ?? String.Empty;
 
         /// <summary>
+        /// Gets the encryption algorithm (Enc) of the token.
+        /// </summary>
+        /// <remarks>If the 'enc' value is not found, an empty string is returned.</remarks>   
+        public string Enc => Header.Value<string>(JwtHeaderParameterNames.Enc) ?? String.Empty;
+
+        /// <summary>
         /// Represents the cryptographic operations applied to the JWT and optionally any additional properties of the JWT. 
         /// </summary>
         public JObject Header
@@ -178,19 +186,24 @@ namespace Microsoft.IdentityModel.JsonWebTokens
         /// Gets the 'value' of the 'JWT ID' claim { jti, ''value' }.
         /// </summary>
         /// <remarks>If the 'JWT ID' claim is not found, an empty string is returned.</remarks>
-        public override string Id => Payload.Value<string>(JwtRegisteredClaimNames.Jti) ?? String.Empty;
+        public override string Id => Payload?.Value<string>(JwtRegisteredClaimNames.Jti) ?? String.Empty;
+
+        /// <summary>
+        /// Gets the <see cref="JsonWebToken"/> associated with this instance.
+        /// </summary>
+        public JsonWebToken InnerToken { get; internal set; }
 
         /// <summary>
         /// Gets the 'value' of the 'iat' claim { iat, 'value' } converted to a <see cref="DateTime"/> assuming 'value' is seconds since UnixEpoch (UTC 1970-01-01T0:0:0Z).
         /// </summary>
         /// <remarks>If the 'exp' claim is not found, then <see cref="DateTime.MinValue"/> is returned.</remarks>
-        public DateTime IssuedAt => GetDateTime(JwtRegisteredClaimNames.Iat);
+        public DateTime IssuedAt => Payload == null ? DateTime.MinValue : GetDateTime(JwtRegisteredClaimNames.Iat);
 
         /// <summary>
         /// Gets the 'value' of the 'issuer' claim { iss, 'value' }.
         /// </summary>
         /// <remarks>If the 'issuer' claim is not found, an empty string is returned.</remarks>   
-        public override string Issuer => Payload.Value<string>(JwtRegisteredClaimNames.Iss) ?? String.Empty;
+        public override string Issuer => Payload?.Value<string>(JwtRegisteredClaimNames.Iss) ?? String.Empty;
 
         /// <summary>
         /// Gets the 'value' of the 'kid' claim { kid, 'value' }.
@@ -230,7 +243,7 @@ namespace Microsoft.IdentityModel.JsonWebTokens
         /// Gets the 'value' of the 'sub' claim { sub, 'value' }.
         /// </summary>
         /// <remarks>If the 'sub' claim is not found, an empty string is returned.</remarks>   
-        public string Subject => Payload.Value<string>(JwtRegisteredClaimNames.Sub) ?? String.Empty;
+        public string Subject => Payload?.Value<string>(JwtRegisteredClaimNames.Sub) ?? String.Empty;
 
         /// <summary>
         /// Gets the 'value' of the 'typ' claim { typ, 'value' }.
@@ -242,13 +255,13 @@ namespace Microsoft.IdentityModel.JsonWebTokens
         /// Gets the 'value' of the 'notbefore' claim { nbf, 'value' } converted to a <see cref="DateTime"/> assuming 'value' is seconds since UnixEpoch (UTC 1970-01-01T0:0:0Z).
         /// </summary>
         /// <remarks>If the 'notbefore' claim is not found, then <see cref="DateTime.MinValue"/> is returned.</remarks>
-        public override DateTime ValidFrom => GetDateTime(JwtRegisteredClaimNames.Nbf);
+        public override DateTime ValidFrom => Payload == null ? DateTime.MinValue : GetDateTime(JwtRegisteredClaimNames.Nbf);
 
         /// <summary>
         /// Gets the 'value' of the 'exp' claim { exp, 'value' } converted to a <see cref="DateTime"/> assuming 'value' is seconds since UnixEpoch (UTC 1970-01-01T0:0:0Z).
         /// </summary>
         /// <remarks>If the 'exp' claim is not found, then <see cref="DateTime.MinValue"/> is returned.</remarks>
-        public override DateTime ValidTo => GetDateTime(JwtRegisteredClaimNames.Exp);
+        public override DateTime ValidTo => Payload == null ? DateTime.MinValue : GetDateTime(JwtRegisteredClaimNames.Exp);
 
         /// <summary>
         /// Gets the 'value' of the 'x5t' claim { x5t, 'value' }.
@@ -278,8 +291,10 @@ namespace Microsoft.IdentityModel.JsonWebTokens
             }
             else
                 Header = header;
-           
-            DecodeJws(tokenParts); 
+
+            if (tokenParts.Length == JwtConstants.JwsSegmentCount)
+                DecodeJws(tokenParts);
+                
             EncodedToken = rawData;
         }
 

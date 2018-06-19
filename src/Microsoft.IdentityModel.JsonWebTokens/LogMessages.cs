@@ -52,6 +52,7 @@ namespace Microsoft.IdentityModel.JsonWebTokens
         internal const string IDX14108 = "IDX14108: Error found while parsing date time. The '{0}' claim has value '{1}' which is could not be parsed to an integer.";
         internal const string IDX14109 = "IDX14109: Error found while parsing date time. The '{0}' claim has value '{1}' does not lie in the valid range.";
         internal const string IDX14110 = "IDX14110: JWT is not well formed: '{0}'.\nThe token needs to be in JWS Compact Serialization Format. (JWS): 'EncodedHeader.EndcodedPayload.EncodedSignature'.";
+        internal const string IDX14111 = "IDX14111: JWT: '{0}' must have three segments (JWS) or five segments (JWE).";
 
         // logging
         internal const string IDX14200 = "IDX14200: Creating raw signature using the signature credentials.";
