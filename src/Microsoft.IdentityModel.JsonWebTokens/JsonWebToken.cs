@@ -86,9 +86,9 @@ namespace Microsoft.IdentityModel.JsonWebTokens
         }
 
         /// <summary>
-        /// Gets the 'value' of the 'actor' claim { actort, 'value' }.
+        /// Gets the 'value' of the 'actort' claim { actort, 'value' }.
         /// </summary>
-        /// <remarks>If the 'actor' claim is not found, an empty string is returned.</remarks> 
+        /// <remarks>If the 'actort' claim is not found, an empty string is returned.</remarks> 
         public string Actor => Payload?.Value<string>(JwtRegisteredClaimNames.Actort) ?? String.Empty;
 
         /// <summary>
@@ -98,9 +98,9 @@ namespace Microsoft.IdentityModel.JsonWebTokens
         public string Alg => Header.Value<string>(JwtHeaderParameterNames.Alg) ?? String.Empty;
 
         /// <summary>
-        /// Gets the list of 'audience' claim { aud, 'value' }.
+        /// Gets the list of 'aud' claim { aud, 'value' }.
         /// </summary>
-        /// <remarks>If the 'audience' claim is not found, enumeration will be empty.</remarks>
+        /// <remarks>If the 'aud' claim is not found, enumeration will be empty.</remarks>
         public IEnumerable<string> Audiences
         {
             get
@@ -126,7 +126,7 @@ namespace Microsoft.IdentityModel.JsonWebTokens
         {
             get
             {
-                List<Claim> claims = new List<Claim>();
+                var claims = new List<Claim>();
                 string issuer = this.Issuer ?? ClaimsIdentity.DefaultIssuer;
 
                 if (Payload == null)
@@ -168,7 +168,7 @@ namespace Microsoft.IdentityModel.JsonWebTokens
         public string Cty => Header.Value<string>(JwtHeaderParameterNames.Cty) ?? String.Empty;
 
         /// <summary>
-        /// Gets the encryption algorithm (Enc) of the token.
+        /// Gets the 'value' of the 'enc' claim { enc, 'value' }.
         /// </summary>
         /// <remarks>If the 'enc' value is not found, an empty string is returned.</remarks>   
         public string Enc => Header.Value<string>(JwtHeaderParameterNames.Enc) ?? String.Empty;
@@ -183,9 +183,9 @@ namespace Microsoft.IdentityModel.JsonWebTokens
         }
 
         /// <summary>
-        /// Gets the 'value' of the 'JWT ID' claim { jti, ''value' }.
+        /// Gets the 'value' of the 'jti' claim { jti, ''value' }.
         /// </summary>
-        /// <remarks>If the 'JWT ID' claim is not found, an empty string is returned.</remarks>
+        /// <remarks>If the 'jti' claim is not found, an empty string is returned.</remarks>
         public override string Id => Payload?.Value<string>(JwtRegisteredClaimNames.Jti) ?? String.Empty;
 
         /// <summary>
@@ -196,13 +196,13 @@ namespace Microsoft.IdentityModel.JsonWebTokens
         /// <summary>
         /// Gets the 'value' of the 'iat' claim { iat, 'value' } converted to a <see cref="DateTime"/> assuming 'value' is seconds since UnixEpoch (UTC 1970-01-01T0:0:0Z).
         /// </summary>
-        /// <remarks>If the 'exp' claim is not found, then <see cref="DateTime.MinValue"/> is returned.</remarks>
+        /// <remarks>If the 'iat' claim is not found, then <see cref="DateTime.MinValue"/> is returned.</remarks>
         public DateTime IssuedAt => Payload == null ? DateTime.MinValue : GetDateTime(JwtRegisteredClaimNames.Iat);
 
         /// <summary>
-        /// Gets the 'value' of the 'issuer' claim { iss, 'value' }.
+        /// Gets the 'value' of the 'iss' claim { iss, 'value' }.
         /// </summary>
-        /// <remarks>If the 'issuer' claim is not found, an empty string is returned.</remarks>   
+        /// <remarks>If the 'iss' claim is not found, an empty string is returned.</remarks>   
         public override string Issuer => Payload?.Value<string>(JwtRegisteredClaimNames.Iss) ?? String.Empty;
 
         /// <summary>
@@ -252,9 +252,9 @@ namespace Microsoft.IdentityModel.JsonWebTokens
         public string Typ => Header.Value<string>(JwtHeaderParameterNames.Typ) ?? String.Empty;
 
         /// <summary>
-        /// Gets the 'value' of the 'notbefore' claim { nbf, 'value' } converted to a <see cref="DateTime"/> assuming 'value' is seconds since UnixEpoch (UTC 1970-01-01T0:0:0Z).
+        /// Gets the 'value' of the 'nbf' claim { nbf, 'value' } converted to a <see cref="DateTime"/> assuming 'value' is seconds since UnixEpoch (UTC 1970-01-01T0:0:0Z).
         /// </summary>
-        /// <remarks>If the 'notbefore' claim is not found, then <see cref="DateTime.MinValue"/> is returned.</remarks>
+        /// <remarks>If the 'nbf' claim is not found, then <see cref="DateTime.MinValue"/> is returned.</remarks>
         public override DateTime ValidFrom => Payload == null ? DateTime.MinValue : GetDateTime(JwtRegisteredClaimNames.Nbf);
 
         /// <summary>
@@ -334,7 +334,7 @@ namespace Microsoft.IdentityModel.JsonWebTokens
 
         private void AddDefaultClaimFromJToken(List<Claim> claims, string claimType, JToken jtoken, string issuer)
         {
-            JValue jvalue = jtoken as JValue;
+            var jvalue = jtoken as JValue;
             if (jvalue != null)
             {
                 // String is special because item.ToString(Formatting.None) will result in "/"string/"". The quotes will be added.
@@ -420,7 +420,7 @@ namespace Microsoft.IdentityModel.JsonWebTokens
             if (!Payload.TryGetValue(key, out jToken))
                 return DateTime.MinValue;
 
-            long dateValue = ParseTimeValue(jToken, key);
+            var dateValue = ParseTimeValue(jToken, key);
 
             var secondsAfterBaseTime = Convert.ToInt64(Math.Truncate(Convert.ToDouble(dateValue, CultureInfo.InvariantCulture)));
             return EpochTime.DateTime(secondsAfterBaseTime);

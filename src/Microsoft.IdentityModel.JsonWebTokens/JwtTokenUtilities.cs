@@ -110,12 +110,15 @@ namespace Microsoft.IdentityModel.JsonWebTokens
         /// </summary>
         public static IEnumerable<SecurityKey> GetAllDecryptionKeys(TokenValidationParameters validationParameters)
         {
+            var decryptionKeys = new List<SecurityKey>();
             if (validationParameters.TokenDecryptionKey != null)
-                yield return validationParameters.TokenDecryptionKey;
+                decryptionKeys.Add(validationParameters.TokenDecryptionKey);
 
             if (validationParameters.TokenDecryptionKeys != null)
                 foreach (SecurityKey key in validationParameters.TokenDecryptionKeys)
-                    yield return key;
+                    decryptionKeys.Add(key);
+
+            return decryptionKeys;
         }
     }
 }

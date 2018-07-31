@@ -75,7 +75,7 @@ namespace Microsoft.IdentityModel.JsonWebTokens.Tests
             try
             {
                 string jweFromJwtHandler = theoryData.JwtSecurityTokenHandler.CreateEncodedJwt(theoryData.TokenDescriptor);
-                string jweFromJsonHandler = theoryData.JsonWebTokenHandler.CreateJsonWebToken(theoryData.Payload, theoryData.TokenDescriptor.SigningCredentials, theoryData.TokenDescriptor.EncryptingCredentials);
+                string jweFromJsonHandler = theoryData.JsonWebTokenHandler.CreateToken(theoryData.Payload, theoryData.TokenDescriptor.SigningCredentials, theoryData.TokenDescriptor.EncryptingCredentials);
 
                 theoryData.JwtSecurityTokenHandler.ValidateToken(jweFromJwtHandler, theoryData.ValidationParameters, out SecurityToken validatedToken);
                 theoryData.JsonWebTokenHandler.ValidateToken(jweFromJsonHandler, theoryData.ValidationParameters);
@@ -228,7 +228,7 @@ namespace Microsoft.IdentityModel.JsonWebTokens.Tests
         {
             var context = TestUtilities.WriteHeader($"{this}.RoundTripJWE", theoryData);
             var handler = new JsonWebTokenHandler();
-            var jweCreatedInMemory = handler.CreateJsonWebToken(theoryData.Payload, theoryData.SigningCredentials, theoryData.EncryptingCredentials);
+            var jweCreatedInMemory = handler.CreateToken(theoryData.Payload, theoryData.SigningCredentials, theoryData.EncryptingCredentials);
             var jweCreatedInMemoryToken = new JsonWebToken(jweCreatedInMemory);
             try
             {
@@ -311,7 +311,7 @@ namespace Microsoft.IdentityModel.JsonWebTokens.Tests
         {
             var context = TestUtilities.WriteHeader($"{this}.RoundTripJWE", theoryData);
             var handler = new JsonWebTokenHandler();
-            var jweCreatedInMemory = handler.CreateJsonWebToken(theoryData.Payload, theoryData.SigningCredentials, theoryData.EncryptingCredentials);
+            var jweCreatedInMemory = handler.CreateToken(theoryData.Payload, theoryData.SigningCredentials, theoryData.EncryptingCredentials);
             var jweCreatedInMemoryToken = new JsonWebToken(jweCreatedInMemory);
             try
             {
