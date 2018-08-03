@@ -28,6 +28,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
@@ -115,7 +116,7 @@ namespace Microsoft.IdentityModel.JsonWebTokens
                         return value.ToObject<List<string>>();
                 }
 
-                return new List<string>();
+                return Enumerable.Empty<string>();
             }
         }
 
@@ -126,11 +127,11 @@ namespace Microsoft.IdentityModel.JsonWebTokens
         {
             get
             {
+                if (Payload == null)
+                    return Enumerable.Empty<Claim>();
+
                 var claims = new List<Claim>();
                 string issuer = this.Issuer ?? ClaimsIdentity.DefaultIssuer;
-
-                if (Payload == null)
-                    return claims;
 
                 // there is some code redundancy here that was not factored as this is a high use method. Each identity received from the host will pass through here.
                 foreach (var entry in Payload)
@@ -334,8 +335,7 @@ namespace Microsoft.IdentityModel.JsonWebTokens
 
         private void AddDefaultClaimFromJToken(List<Claim> claims, string claimType, JToken jtoken, string issuer)
         {
-            var jvalue = jtoken as JValue;
-            if (jvalue != null)
+            if (jtoken is JValue jvalue)
             {
                 // String is special because item.ToString(Formatting.None) will result in "/"string/"". The quotes will be added.
                 // Boolean needs item.ToString otherwise 'true' => 'True'
