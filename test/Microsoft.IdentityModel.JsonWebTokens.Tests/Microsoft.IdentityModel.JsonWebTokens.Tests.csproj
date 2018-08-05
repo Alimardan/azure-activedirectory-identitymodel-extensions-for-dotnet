@@ -8,7 +8,7 @@
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <PackageId>Microsoft.IdentityModel.JsonWebTokens.Tests</PackageId>
     <RuntimeFrameworkVersion Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">$(DotNetCoreAppRuntimeVersion)</RuntimeFrameworkVersion>
-    <TargetFrameworks Condition=" '$(OS)' == 'Windows_NT' ">net452;netcoreapp2.0</TargetFrameworks>
+    <TargetFrameworks Condition=" '$(OS)' == 'Windows_NT' ">net452;net461;netcoreapp2.0</TargetFrameworks>
     <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netcoreapp2.0</TargetFrameworks>
   </PropertyGroup>
 

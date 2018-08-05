@@ -8,7 +8,7 @@
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <PackageId>Microsoft.IdentityModel.Tokens.Tests</PackageId>
     <RuntimeFrameworkVersion Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">$(DotNetCoreAppRuntimeVersion)</RuntimeFrameworkVersion>
-    <TargetFrameworks Condition=" '$(OS)' == 'Windows_NT' ">net452;netcoreapp2.0</TargetFrameworks>
+    <TargetFrameworks Condition=" '$(OS)' == 'Windows_NT' ">net452;net461;netcoreapp2.0</TargetFrameworks>
     <TargetFrameworks Condition=" '$(OS)' != 'Windows_NT' ">netcoreapp2.0</TargetFrameworks>
   </PropertyGroup>
 
@@ -39,6 +39,14 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
+    <PackageReference Include="xunit.runner.console" Version="$(XunitVersion)" />
+    <Reference Include="System.Runtime" />
+    <Reference Include="System.Threading.Tasks" />
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
     <PackageReference Include="xunit.runner.console" Version="$(XunitVersion)" />
     <Reference Include="System.Runtime" />
     <Reference Include="System.Threading.Tasks" />

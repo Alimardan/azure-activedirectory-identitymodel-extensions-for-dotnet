@@ -432,7 +432,7 @@ namespace Microsoft.IdentityModel.Tokens
 
             if (key is X509SecurityKey x509Key)
             {
-#if NETSTANDARD1_4
+#if NETSTANDARD1_4 || NET461
                 if (x509Key.PublicKey as RSA == null)
                     return false;
 #else

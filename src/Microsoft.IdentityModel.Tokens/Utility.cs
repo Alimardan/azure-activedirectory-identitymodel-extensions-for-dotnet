@@ -203,7 +203,7 @@ namespace Microsoft.IdentityModel.Tokens
             {
                 return false;
             }
-#if NETSTANDARD1_4
+#if NETSTANDARD1_4 || NET461
             return uri.Scheme.Equals("https", StringComparison.OrdinalIgnoreCase); //Uri.UriSchemeHttps is internal in dnxcore
 #else
             return uri.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase);
@@ -339,7 +339,7 @@ namespace Microsoft.IdentityModel.Tokens
             var ecdsaAlgorithm = new ECDsaAlgorithm();
             if (key is ECDsaSecurityKey ecdsaKey)
             {
-#if NETSTANDARD1_4
+#if NETSTANDARD1_4 || NET461
                 if (ecdsaKey.ECDsa != null && ValidateECDSAKeySize(ecdsaKey.ECDsa.KeySize, algorithm))
                     ecdsaAlgorithm.ECDsa = ecdsaKey.ECDsa;
 #else // net451 windows

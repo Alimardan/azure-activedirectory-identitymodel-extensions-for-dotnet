@@ -1,0 +1,5 @@
+<Project>
+  <PropertyGroup>
+    <SrcTargets>net45;net451;net461;netstandard1.4</SrcTargets>
+  </PropertyGroup>
+</Project>

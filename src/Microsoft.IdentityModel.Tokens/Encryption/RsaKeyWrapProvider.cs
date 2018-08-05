@@ -170,7 +170,7 @@ namespace Microsoft.IdentityModel.Tokens
                 var x509Key = key as X509SecurityKey;
                 if (x509Key != null)
                 {
-#if NETSTANDARD1_4
+#if NETSTANDARD1_4 || NET461
                     if (x509Key.PublicKey as RSA != null)
                         return true;
 #else
