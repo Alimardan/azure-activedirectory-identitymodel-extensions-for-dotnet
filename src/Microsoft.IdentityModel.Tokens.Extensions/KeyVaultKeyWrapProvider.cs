@@ -25,18 +25,20 @@
 //
 //------------------------------------------------------------------------------
 
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Azure.KeyVault;
+using Microsoft.IdentityModel.Logging;
+
 namespace Microsoft.IdentityModel.Tokens.Extensions
 {
-    using System.Threading;
-    using Microsoft.IdentityModel.Logging;
-    using Microsoft.IdentityModel.Tokens;
-
     /// <summary>
     /// Provides wrap and unwrap operations using Azure Key Vault.
     /// </summary>
     public class KeyVaultKeyWrapProvider : KeyWrapProvider
     {
-        private readonly KeyVaultKeyWrapSecurityKey _keyVaultSecurityKey;
+        private readonly IKeyVaultClient _client;
+        private readonly KeyVaultSecurityKey _key;
         private readonly string _algorithm;
         private bool _disposed = false;
 
@@ -48,7 +50,8 @@ namespace Microsoft.IdentityModel.Tokens.Extensions
         public KeyVaultKeyWrapProvider(SecurityKey key, string algorithm)
         {
             _algorithm = string.IsNullOrEmpty(algorithm) ? throw LogHelper.LogArgumentNullException(nameof(algorithm)) : algorithm;
-            _keyVaultSecurityKey = key as KeyVaultKeyWrapSecurityKey ?? throw LogHelper.LogArgumentNullException(nameof(key));
+            _key = key as KeyVaultSecurityKey ?? throw LogHelper.LogArgumentNullException(nameof(key));
+            _client = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(_key.Callback));
         }
 
         /// <summary>
@@ -65,7 +68,7 @@ namespace Microsoft.IdentityModel.Tokens.Extensions
         /// <summary>
         /// Gets the <see cref="SecurityKey"/> that is being used.
         /// </summary>
-        public override SecurityKey Key => _keyVaultSecurityKey;
+        public override SecurityKey Key => _key;
 
         /// <summary>
         /// Unwrap a key.
@@ -74,7 +77,7 @@ namespace Microsoft.IdentityModel.Tokens.Extensions
         /// <returns>Unwrapped key.</returns>
         public override byte[] UnwrapKey(byte[] keyBytes)
         {
-            return _keyVaultSecurityKey.UnwrapKeyAsync(Algorithm, keyBytes, CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
+            return UnwrapKeyAsync(keyBytes, CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -84,7 +87,7 @@ namespace Microsoft.IdentityModel.Tokens.Extensions
         /// <returns>wrapped key.</returns>
         public override byte[] WrapKey(byte[] keyBytes)
         {
-            return _keyVaultSecurityKey.WrapKeyAsync(Algorithm, keyBytes, CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
+            return WrapKeyAsync(keyBytes, CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -98,9 +101,31 @@ namespace Microsoft.IdentityModel.Tokens.Extensions
                 if (disposing)
                 {
                     _disposed = true;
-                    _keyVaultSecurityKey.Dispose();
+                    _client.Dispose();
                 }
             }
+        }
+
+        /// <summary>
+        /// Unwraps a symmetric key using Azure Key Vault.
+        /// </summary>
+        /// <param name="keyBytes">key to unwrap.</param>
+        /// <param name="cancellation">Propagates notification that operations should be canceled.</param>
+        /// <returns>Unwrapped key.</returns>
+        private async Task<byte[]> UnwrapKeyAsync(byte[] keyBytes, CancellationToken cancellation)
+        {
+            return (await _client.UnwrapKeyAsync(_key.KeyId, Algorithm, keyBytes, cancellation)).Result;
+        }
+
+        /// <summary>
+        /// Wraps a symmetric key using Azure Key Vault.
+        /// </summary>
+        /// <param name="keyBytes">the key to be wrapped</param>
+        /// <param name="cancellation">Propagates notification that operations should be canceled.</param>
+        /// <returns>wrapped key.</returns>
+        private async Task<byte[]> WrapKeyAsync(byte[] keyBytes, CancellationToken cancellation)
+        {
+            return (await _client.WrapKeyAsync(_key.KeyId, Algorithm, keyBytes, cancellation)).Result;
         }
     }
 }

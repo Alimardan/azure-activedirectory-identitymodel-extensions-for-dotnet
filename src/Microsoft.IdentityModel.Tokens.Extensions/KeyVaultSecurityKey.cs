@@ -25,28 +25,25 @@
 //
 //------------------------------------------------------------------------------
 
+using System;
+using System.Collections;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Azure.KeyVault;
+using Microsoft.Azure.Services.AppAuthentication;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.IdentityModel.Logging;
+
 namespace Microsoft.IdentityModel.Tokens.Extensions
 {
-    using System;
-    using System.Collections;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.Azure.KeyVault;
-    using Microsoft.Azure.KeyVault.Models;
-    using Microsoft.Azure.Services.AppAuthentication;
-    using Microsoft.IdentityModel.Clients.ActiveDirectory;
-    using Microsoft.IdentityModel.Logging;
-    using Microsoft.IdentityModel.Tokens;
-
     /// <summary>
     /// Provides signing and verifying operations using Azure Key Vault.
     /// </summary>
-    public abstract class KeyVaultSecurityKey : SecurityKey, IDisposable
+    public class KeyVaultSecurityKey : SecurityKey
     {
-        private protected readonly IKeyVaultClient _client;
-        private protected readonly KeyBundle _bundle;
-        private readonly int _keySize;
-        private bool _disposed = false;
+        private byte[] _symmetricKey;
+        private int? _keySize;
+        private string _keyId;
 
         /// <summary>
         /// The authentication callback delegate which is to be implemented by the client code.
@@ -61,67 +58,109 @@ namespace Microsoft.IdentityModel.Tokens.Extensions
         /// Initializes a new instance of the <see cref="KeyVaultSecurityKey"/> class.
         /// </summary>
         /// <param name="keyIdentifier">The key identifier.</param>
-        /// <param name="client">Client class to perform cryptographic key operations and vault operations against the Key Vault service.</param>
-        private protected KeyVaultSecurityKey(string keyIdentifier, IKeyVaultClient client)
+        public KeyVaultSecurityKey(string keyIdentifier)
+            : this(keyIdentifier, new AuthenticationCallback((new AzureServiceTokenProvider()).KeyVaultTokenCallback))
         {
-            _client = client ?? throw LogHelper.LogArgumentNullException(nameof(client));
-            _bundle = _client.GetKeyAsync(keyIdentifier, CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
-            _keySize = (new BitArray(_bundle.Key.N)).Length;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="KeyVaultSecurityKey"/> class.
+        /// </summary>
+        /// <param name="keyIdentifier">The key identifier.</param>
+        /// <param name="clientId">Identifier of the client.</param>
+        /// <param name="clientSecret">Secret of the client identity.</param>
+        public KeyVaultSecurityKey(string keyIdentifier, string clientId, string clientSecret)
+            : this(keyIdentifier, new AuthenticationCallback(async (string authority, string resource, string scope) => (await (new AuthenticationContext(authority, TokenCache.DefaultShared)).AcquireTokenAsync(resource, new ClientCredential(clientId, clientSecret)).ConfigureAwait(false)).AccessToken))
+        {
+            if (string.IsNullOrEmpty(clientId))
+                throw LogHelper.LogArgumentNullException(nameof(clientId));
+            else if (string.IsNullOrEmpty(clientSecret))
+                throw LogHelper.LogArgumentNullException(nameof(clientSecret));
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="KeyVaultSecurityKey"/> class.
+        /// </summary>
+        /// <param name="keyIdentifier">The key identifier.</param>
+        /// <param name="callback">The authentication callback.</param>
+        public KeyVaultSecurityKey(string keyIdentifier, AuthenticationCallback callback)
+        {
+            Callback = callback ?? throw LogHelper.LogArgumentNullException(nameof(callback));
+            KeyId = keyIdentifier;
+        }
+
+        internal KeyVaultSecurityKey(string keyIdentifier, int keySize, byte[] symmetricKey)
+        {
+            _keyId = keyIdentifier;
+            _keySize = keySize;
+            _symmetricKey = symmetricKey;
+        }
+
+        /// <summary>
+        /// The authentication callback delegate that retrieves an access token for the Key Vault.
+        /// </summary>
+        public AuthenticationCallback Callback { get; }
+
+        /// <summary>
+        /// The uniform resource identifier of the security key.
+        /// </summary>
+        public override string KeyId
+        {
+            get => _keyId;
+            set
+            {
+                if (string.IsNullOrEmpty(value))
+                    throw LogHelper.LogArgumentNullException(nameof(value));
+                else if (StringComparer.Ordinal.Equals(_keyId, value))
+                    return;
+
+                _keyId = value;
+
+                // Reset the properties so they can be retrieved from Azure Key Vault the next time they are accessed.
+                _keySize = null;
+                _symmetricKey = null;
+            }
         }
 
         /// <summary>
         /// The size of the security key.
         /// </summary>
-        public override int KeySize => _keySize;
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
+        public override int KeySize
         {
-            if (_disposed)
-                return;
-
-            _disposed = true;
-            _client.Dispose();
-        }
-
-        /// <summary>
-        /// Creates a <see cref="KeyVaultClient"/> using Managed Service Identity.
-        /// </summary>
-        /// <returns>A client class to perform cryptographic key operations and vault operations against the Key Vault service.</returns>
-        private protected static KeyVaultClient CreateClient()
-        {
-            var azureServiceTokenProvider = new AzureServiceTokenProvider();
-            var authenticationCallback = new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback);
-            return new KeyVaultClient(authenticationCallback);
-        }
-
-        /// <summary>
-        /// Creates a <see cref="KeyVaultClient"/> using a custom callback delegate.
-        /// </summary>
-        /// <param name="callback">The authentication callback.</param>
-        /// <returns>A client class to perform cryptographic key operations and vault operations against the Key Vault service.</returns>
-        private protected static KeyVaultClient CreateClient(AuthenticationCallback callback)
-        {
-            return new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(callback));
-        }
-
-        /// <summary>
-        /// Creates a <see cref="KeyVaultClient"/> using client credentials.
-        /// </summary>
-        /// <param name="clientId">Identifier of the client requesting the token.</param>
-        /// <param name="clientSecret">Secret of the client requesting the token.</param>
-        /// <returns>A client class to perform cryptographic key operations and vault operations against the Key Vault service.</returns>
-        private protected static KeyVaultClient CreateClient(string clientId, string clientSecret)
-        {
-            var clientCredential = new ClientCredential(clientId, clientSecret);
-            return new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(async (string authority, string resource, string scope) =>
+            get
             {
-                var context = new AuthenticationContext(authority, TokenCache.DefaultShared);
-                var result = await context.AcquireTokenAsync(resource, clientCredential);
-                return result.AccessToken;
-            }));
+                if (!_keySize.HasValue)
+                    Initialize();
+
+                return _keySize.Value;
+            }
+        }
+
+        /// <summary>
+        /// Gets the symmetric key from Azure Key Vault.
+        /// </summary>
+        public byte[] SymmetricKey
+        {
+            get
+            {
+                if (_symmetricKey == null)
+                    Initialize();
+
+                return _symmetricKey;
+            }
+        }
+
+        /// <summary>
+        /// Retrieve the properties from Azure Key Vault.
+        /// </summary>
+        private void Initialize()
+        {
+            using (var client = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(Callback)))
+            {
+                var bundle = client.GetKeyAsync(_keyId, CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
+                _keySize = new BitArray(bundle.Key.N).Length;
+                _symmetricKey = bundle.Key.K;
+            }
         }
     }
 }

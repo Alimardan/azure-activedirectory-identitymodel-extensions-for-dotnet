@@ -52,64 +52,32 @@ namespace Microsoft.IdentityModel.Tokens.Extensions.Tests
                     ExpectedException = ExpectedException.ArgumentNullException(),
                     First = true,
                     KeyIdentifier = null,
-                    TestId = typeof(KeyVaultSignatureSecurityKey).FullName,
-                    Type = typeof(KeyVaultSignatureSecurityKey),
+                    TestId = typeof(KeyVaultSecurityKey).FullName,
+                    Type = typeof(KeyVaultSecurityKey),
                 },
                 new KeyVaultSecurityKeyAuthenticationCallbackTheoryData
                 {
                     // Callback = default,
                     ExpectedException = ExpectedException.ArgumentNullException(),
                     KeyIdentifier = string.Empty,
-                    TestId = typeof(KeyVaultSignatureSecurityKey).FullName,
-                    Type = typeof(KeyVaultSignatureSecurityKey),
+                    TestId = typeof(KeyVaultSecurityKey).FullName,
+                    Type = typeof(KeyVaultSecurityKey),
                 },
                 new KeyVaultSecurityKeyAuthenticationCallbackTheoryData
                 {
                     Callback = null,
                     ExpectedException = ExpectedException.ArgumentNullException(),
                     // KeyIdentifier = default,
-                    TestId = typeof(KeyVaultEncryptionSecurityKey).FullName,
-                    Type = typeof(KeyVaultEncryptionSecurityKey),
-                },
-                new KeyVaultSecurityKeyAuthenticationCallbackTheoryData
-                {
-                    Callback = null,
-                    ExpectedException = ExpectedException.ArgumentNullException(),
-                    // KeyIdentifier = default,
-                    TestId = typeof(KeyVaultKeyWrapSecurityKey).FullName,
-                    Type = typeof(KeyVaultKeyWrapSecurityKey),
-                },
-                new KeyVaultSecurityKeyAuthenticationCallbackTheoryData
-                {
-                    Callback = null,
-                    ExpectedException = ExpectedException.ArgumentNullException(),
-                    // KeyIdentifier = default,
-                    TestId = typeof(KeyVaultSignatureSecurityKey).FullName,
-                    Type = typeof(KeyVaultSignatureSecurityKey),
+                    TestId = typeof(KeyVaultSecurityKey).FullName,
+                    Type = typeof(KeyVaultSecurityKey),
                 },
                 new KeyVaultSecurityKeyAuthenticationCallbackTheoryData
                 {
                     // Callback = default,
                     ExpectedException = KeyVaultErrorExceptionExpected,
                     // KeyIdentifier = default,
-                    TestId = typeof(KeyVaultEncryptionSecurityKey).FullName,
-                    Type = typeof(KeyVaultEncryptionSecurityKey),
-                },
-                new KeyVaultSecurityKeyAuthenticationCallbackTheoryData
-                {
-                    // Callback = default,
-                    ExpectedException = KeyVaultErrorExceptionExpected,
-                    // KeyIdentifier = default,
-                    TestId = typeof(KeyVaultKeyWrapSecurityKey).FullName,
-                    Type = typeof(KeyVaultKeyWrapSecurityKey),
-                },
-                new KeyVaultSecurityKeyAuthenticationCallbackTheoryData
-                {
-                    // Callback = default,
-                    ExpectedException = KeyVaultErrorExceptionExpected,
-                    // KeyIdentifier = default,
-                    TestId = typeof(KeyVaultSignatureSecurityKey).FullName,
-                    Type = typeof(KeyVaultSignatureSecurityKey),
+                    TestId = typeof(KeyVaultSecurityKey).FullName,
+                    Type = typeof(KeyVaultSecurityKey),
                 },
             };
         }
@@ -125,8 +93,8 @@ namespace Microsoft.IdentityModel.Tokens.Extensions.Tests
                     ExpectedException = ArgumentNullExceptionExpected,
                     First = true,
                     KeyIdentifier = null,
-                    TestId = typeof(KeyVaultSignatureSecurityKey).FullName,
-                    Type = typeof(KeyVaultSignatureSecurityKey),
+                    TestId = typeof(KeyVaultSecurityKey).FullName,
+                    Type = typeof(KeyVaultSecurityKey),
                 },
                 new KeyVaultSecurityKeyConfidentialClientTheoryData
                 {
@@ -134,8 +102,8 @@ namespace Microsoft.IdentityModel.Tokens.Extensions.Tests
                     // ClientSecret = default,
                     ExpectedException = ArgumentNullExceptionExpected,
                     KeyIdentifier = string.Empty,
-                    TestId = typeof(KeyVaultSignatureSecurityKey).FullName,
-                    Type = typeof(KeyVaultSignatureSecurityKey),
+                    TestId = typeof(KeyVaultSecurityKey).FullName,
+                    Type = typeof(KeyVaultSecurityKey),
                 },
                 new KeyVaultSecurityKeyConfidentialClientTheoryData
                 {
@@ -143,44 +111,8 @@ namespace Microsoft.IdentityModel.Tokens.Extensions.Tests
                     // ClientSecret = default,
                     ExpectedException = ArgumentNullExceptionExpected,
                     // KeyIdentifier = default,
-                    TestId = typeof(KeyVaultEncryptionSecurityKey).FullName,
-                    Type = typeof(KeyVaultEncryptionSecurityKey),
-                },
-                new KeyVaultSecurityKeyConfidentialClientTheoryData
-                {
-                    ClientId = null,
-                    // ClientSecret = default,
-                    ExpectedException = ArgumentNullExceptionExpected,
-                    // KeyIdentifier = default,
-                    TestId = typeof(KeyVaultKeyWrapSecurityKey).FullName,
-                    Type = typeof(KeyVaultKeyWrapSecurityKey),
-                },
-                new KeyVaultSecurityKeyConfidentialClientTheoryData
-                {
-                    ClientId = null,
-                    // ClientSecret = default,
-                    ExpectedException = ArgumentNullExceptionExpected,
-                    // KeyIdentifier = default,
-                    TestId = typeof(KeyVaultSignatureSecurityKey).FullName,
-                    Type = typeof(KeyVaultSignatureSecurityKey),
-                },
-                new KeyVaultSecurityKeyConfidentialClientTheoryData
-                {
-                    ClientId = string.Empty,
-                    // ClientSecret = default,
-                    ExpectedException = ArgumentNullExceptionExpected,
-                    // KeyIdentifier = default,
-                    TestId = typeof(KeyVaultEncryptionSecurityKey).FullName,
-                    Type = typeof(KeyVaultEncryptionSecurityKey),
-                },
-                new KeyVaultSecurityKeyConfidentialClientTheoryData
-                {
-                    ClientId = string.Empty,
-                    // ClientSecret = default,
-                    ExpectedException = ArgumentNullExceptionExpected,
-                    // KeyIdentifier = default,
-                    TestId = typeof(KeyVaultKeyWrapSecurityKey).FullName,
-                    Type = typeof(KeyVaultKeyWrapSecurityKey),
+                    TestId = typeof(KeyVaultSecurityKey).FullName,
+                    Type = typeof(KeyVaultSecurityKey),
                 },
                 new KeyVaultSecurityKeyConfidentialClientTheoryData
                 {
@@ -190,8 +122,8 @@ namespace Microsoft.IdentityModel.Tokens.Extensions.Tests
                     */
                     ExpectedException = ArgumentNullExceptionExpected,
                     // KeyIdentifier = default,
-                    TestId = typeof(KeyVaultSignatureSecurityKey).FullName,
-                    Type = typeof(KeyVaultSignatureSecurityKey),
+                    TestId = typeof(KeyVaultSecurityKey).FullName,
+                    Type = typeof(KeyVaultSecurityKey),
                 },
                 new KeyVaultSecurityKeyConfidentialClientTheoryData
                 {
@@ -199,26 +131,8 @@ namespace Microsoft.IdentityModel.Tokens.Extensions.Tests
                     ClientSecret = null,
                     ExpectedException = ArgumentNullExceptionExpected,
                     // KeyIdentifier = default,
-                    TestId = typeof(KeyVaultEncryptionSecurityKey).FullName,
-                    Type = typeof(KeyVaultEncryptionSecurityKey),
-                },
-                new KeyVaultSecurityKeyConfidentialClientTheoryData
-                {
-                    // ClientId = default,
-                    ClientSecret = null,
-                    ExpectedException = ArgumentNullExceptionExpected,
-                    // KeyIdentifier = default,
-                    TestId = typeof(KeyVaultKeyWrapSecurityKey).FullName,
-                    Type = typeof(KeyVaultKeyWrapSecurityKey),
-                },
-                new KeyVaultSecurityKeyConfidentialClientTheoryData
-                {
-                    // ClientId = default,
-                    ClientSecret = null,
-                    ExpectedException = ArgumentNullExceptionExpected,
-                    // KeyIdentifier = default,
-                    TestId = typeof(KeyVaultSignatureSecurityKey).FullName,
-                    Type = typeof(KeyVaultSignatureSecurityKey),
+                    TestId = typeof(KeyVaultSecurityKey).FullName,
+                    Type = typeof(KeyVaultSecurityKey),
                 },
                 new KeyVaultSecurityKeyConfidentialClientTheoryData
                 {
@@ -226,53 +140,17 @@ namespace Microsoft.IdentityModel.Tokens.Extensions.Tests
                     ClientSecret = string.Empty,
                     ExpectedException = ArgumentNullExceptionExpected,
                     // KeyIdentifier = default,
-                    TestId = typeof(KeyVaultEncryptionSecurityKey).FullName,
-                    Type = typeof(KeyVaultEncryptionSecurityKey),
-                },
-                new KeyVaultSecurityKeyConfidentialClientTheoryData
-                {
-                    // ClientId = default,
-                    ClientSecret = string.Empty,
-                    ExpectedException = ArgumentNullExceptionExpected,
-                    // KeyIdentifier = default,
-                    TestId = typeof(KeyVaultKeyWrapSecurityKey).FullName,
-                    Type = typeof(KeyVaultKeyWrapSecurityKey),
-                },
-                new KeyVaultSecurityKeyConfidentialClientTheoryData
-                {
-                    // ClientId = default,
-                    ClientSecret = string.Empty,
-                    ExpectedException = ArgumentNullExceptionExpected,
-                    // KeyIdentifier = default,
-                    TestId = typeof(KeyVaultSignatureSecurityKey).FullName,
-                    Type = typeof(KeyVaultSignatureSecurityKey),
+                    TestId = typeof(KeyVaultSecurityKey).FullName,
+                    Type = typeof(KeyVaultSecurityKey),
                 },
                 new KeyVaultSecurityKeyConfidentialClientTheoryData
                 {
                     // ClientId = default,
                     // ClientSecret = default,
-                    ExpectedException = AdalServiceExceptionExpected,
+                    ExpectedException = ExpectedException.NoExceptionExpected,
                     // KeyIdentifier = default,
-                    TestId = typeof(KeyVaultEncryptionSecurityKey).FullName,
-                    Type = typeof(KeyVaultEncryptionSecurityKey),
-                },
-                new KeyVaultSecurityKeyConfidentialClientTheoryData
-                {
-                    // ClientId = default,
-                    // ClientSecret = default,
-                    ExpectedException = AdalServiceExceptionExpected,
-                    // KeyIdentifier = default,
-                    TestId = typeof(KeyVaultKeyWrapSecurityKey).FullName,
-                    Type = typeof(KeyVaultKeyWrapSecurityKey),
-                },
-                new KeyVaultSecurityKeyConfidentialClientTheoryData
-                {
-                    // ClientId = default,
-                    // ClientSecret = default,
-                    ExpectedException = AdalServiceExceptionExpected,
-                    // KeyIdentifier = default,
-                    TestId = typeof(KeyVaultSignatureSecurityKey).FullName,
-                    Type = typeof(KeyVaultSignatureSecurityKey),
+                    TestId = typeof(KeyVaultSecurityKey).FullName,
+                    Type = typeof(KeyVaultSecurityKey),
                 },
             };
         }
@@ -286,36 +164,22 @@ namespace Microsoft.IdentityModel.Tokens.Extensions.Tests
                     ExpectedException = ExpectedException.ArgumentNullException(),
                     First = true,
                     KeyIdentifier = null,
-                    TestId = typeof(KeyVaultSignatureSecurityKey).FullName,
-                    Type = typeof(KeyVaultSignatureSecurityKey),
+                    TestId = typeof(KeyVaultSecurityKey).FullName,
+                    Type = typeof(KeyVaultSecurityKey),
                 },
                 new KeyVaultSecurityKeyManagedServiceIdentityTheoryData
                 {
                     ExpectedException = ExpectedException.ArgumentNullException(),
                     KeyIdentifier = string.Empty,
-                    TestId = typeof(KeyVaultSignatureSecurityKey).FullName,
-                    Type = typeof(KeyVaultSignatureSecurityKey),
+                    TestId = typeof(KeyVaultSecurityKey).FullName,
+                    Type = typeof(KeyVaultSecurityKey),
                 },
                 new KeyVaultSecurityKeyManagedServiceIdentityTheoryData
                 {
                     ExpectedException = KeyVaultErrorExceptionExpected,
                     // KeyIdentifier = default,
-                    TestId = typeof(KeyVaultEncryptionSecurityKey).FullName,
-                    Type = typeof(KeyVaultEncryptionSecurityKey),
-                },
-                new KeyVaultSecurityKeyManagedServiceIdentityTheoryData
-                {
-                    ExpectedException = KeyVaultErrorExceptionExpected,
-                    // KeyIdentifier = default,
-                    TestId = typeof(KeyVaultKeyWrapSecurityKey).FullName,
-                    Type = typeof(KeyVaultKeyWrapSecurityKey),
-                },
-                new KeyVaultSecurityKeyManagedServiceIdentityTheoryData
-                {
-                    ExpectedException = KeyVaultErrorExceptionExpected,
-                    // KeyIdentifier = default,
-                    TestId = typeof(KeyVaultSignatureSecurityKey).FullName,
-                    Type = typeof(KeyVaultSignatureSecurityKey),
+                    TestId = typeof(KeyVaultSecurityKey).FullName,
+                    Type = typeof(KeyVaultSecurityKey),
                 },
             };
         }

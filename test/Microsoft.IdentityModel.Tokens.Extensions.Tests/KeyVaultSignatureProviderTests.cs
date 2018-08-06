@@ -31,22 +31,20 @@ namespace Microsoft.IdentityModel.Tokens.Extensions.Tests
 {
     using System;
     using System.Linq;
+    using Microsoft.Azure.KeyVault;
     using Microsoft.IdentityModel.Tests;
     using Microsoft.IdentityModel.Tokens.Extensions;
     using Xunit;
 
     public class KeyVaultSignatureProviderTests
     {
-        private readonly CryptoProviderFactory _factory;
+        private readonly IKeyVaultClient _client;
         private readonly SecurityKey _key;
 
         public KeyVaultSignatureProviderTests()
         {
-            _factory = new CryptoProviderFactory()
-            {
-                CustomCryptoProvider = new KeyVaultCryptoProvider(),
-            };
-            _key = new KeyVaultSignatureSecurityKey(KeyVaultUtilities.CreateKeyIdentifier(), new MockKeyVaultClient());
+            _client = new MockKeyVaultClient();
+            _key = new KeyVaultSecurityKey(KeyVaultUtilities.CreateKeyIdentifier(), keySize: default, symmetricKey: default);
         }
 
         public static TheoryData<SignatureProviderTheoryData> SignatureProviderTheoryData
@@ -94,7 +92,7 @@ namespace Microsoft.IdentityModel.Tokens.Extensions.Tests
 
             try
             {
-                var provider = _factory.CreateForSigning(_key, theoryData.Algorithm);
+                var provider = new KeyVaultSignatureProvider(_key, theoryData.Algorithm, willCreateSignatures: true, _client);
                 Assert.NotNull(provider);
 
                 var input = Guid.NewGuid().ToByteArray();
@@ -119,7 +117,7 @@ namespace Microsoft.IdentityModel.Tokens.Extensions.Tests
                         continue; // Skip invalid input
 
                     // Check that a given Security Key will only validate a signature using the same hash algorithm.
-                    var isValidSignature = _factory.CreateForVerifying(_key, newAlgorithm).Verify(input, signature);
+                    var isValidSignature = new KeyVaultSignatureProvider(_key, newAlgorithm, willCreateSignatures: false, _client).Verify(input, signature);
                     if (StringComparer.Ordinal.Equals(theoryData.Algorithm, newAlgorithm))
                         Assert.True(isValidSignature);
                     else

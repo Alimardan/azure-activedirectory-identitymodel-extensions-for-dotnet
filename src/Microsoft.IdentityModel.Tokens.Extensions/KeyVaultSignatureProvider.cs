@@ -25,21 +25,23 @@
 //
 //------------------------------------------------------------------------------
 
+using System;
+using System.Security.Cryptography;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Azure.KeyVault;
+using Microsoft.IdentityModel.Logging;
+
 namespace Microsoft.IdentityModel.Tokens.Extensions
 {
-    using System;
-    using System.Security.Cryptography;
-    using System.Threading;
-    using Microsoft.IdentityModel.Logging;
-    using Microsoft.IdentityModel.Tokens;
-
     /// <summary>
     /// Provides signing and verifying operations using Azure Key Vault.
     /// </summary>
     public class KeyVaultSignatureProvider : SignatureProvider
     {
         private readonly HashAlgorithm _hash;
-        private readonly KeyVaultSignatureSecurityKey _keyVaultSecurityKey;
+        private readonly IKeyVaultClient _client;
+        private readonly KeyVaultSecurityKey _key;
         private bool _disposed = false;
 
         /// <summary>
@@ -49,9 +51,22 @@ namespace Microsoft.IdentityModel.Tokens.Extensions
         /// <param name="algorithm">The signature algorithm to apply.</param>
         /// <param name="willCreateSignatures">Whether this <see cref="KeyVaultSignatureProvider"/> is required to create signatures then set this to true.</param>
         public KeyVaultSignatureProvider(SecurityKey key, string algorithm, bool willCreateSignatures)
+            : this(key, algorithm, willCreateSignatures, null)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="KeyVaultSignatureProvider"/> class.
+        /// </summary>
+        /// <param name="key">The <see cref="SecurityKey"/> that will be used for signature operations.</param>
+        /// <param name="algorithm">The signature algorithm to apply.</param>
+        /// <param name="willCreateSignatures">Whether this <see cref="KeyVaultSignatureProvider"/> is required to create signatures then set this to true.</param>
+        /// <param name="client">A mock <see cref="IKeyVaultClient"/> used for testing purposes.</param>
+        internal KeyVaultSignatureProvider(SecurityKey key, string algorithm, bool willCreateSignatures, IKeyVaultClient client)
             : base(key, algorithm)
         {
-            _keyVaultSecurityKey = key as KeyVaultSignatureSecurityKey ?? throw LogHelper.LogArgumentNullException(nameof(key));
+            _key = key as KeyVaultSecurityKey ?? throw LogHelper.LogArgumentNullException(nameof(key));
+            _client = client ?? new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(_key.Callback));
             WillCreateSignatures = willCreateSignatures;
 
             switch (algorithm)
@@ -77,7 +92,7 @@ namespace Microsoft.IdentityModel.Tokens.Extensions
         /// <returns>signed bytes</returns>
         public override byte[] Sign(byte[] input)
         {
-            return _keyVaultSecurityKey.SignAsync(Algorithm, _hash.ComputeHash(input), CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
+            return SignAsync(input, CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -88,7 +103,7 @@ namespace Microsoft.IdentityModel.Tokens.Extensions
         /// <returns>true if the computed signature matches the signature parameter, false otherwise.</returns>
         public override bool Verify(byte[] input, byte[] signature)
         {
-            return _keyVaultSecurityKey.VerifyAsync(Algorithm, _hash.ComputeHash(input), signature, CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
+            return VerifyAsync(input, signature, CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -102,9 +117,32 @@ namespace Microsoft.IdentityModel.Tokens.Extensions
                 if (disposing)
                 {
                     _disposed = true;
-                    _keyVaultSecurityKey.Dispose();
+                    _client.Dispose();
                 }
             }
+        }
+
+        /// <summary>
+        /// Creates a digital signature using Azure Key Vault.
+        /// </summary>
+        /// <param name="input">bytes to sign.</param>
+        /// <param name="cancellation">Propagates notification that operations should be canceled.</param>
+        /// <returns>signed bytes</returns>
+        private async Task<byte[]> SignAsync(byte[] input, CancellationToken cancellation)
+        {
+            return (await _client.SignAsync(_key.KeyId, Algorithm, _hash.ComputeHash(input), cancellation)).Result;
+        }
+
+        /// <summary>
+        /// Verifies a digital signature using Azure Key Vault.
+        /// </summary>
+        /// <param name="input">bytes to verify.</param>
+        /// <param name="signature">signature to compare against.</param>
+        /// <param name="cancellation">Propagates notification that operations should be canceled.</param>
+        /// <returns>true if the computed signature matches the signature parameter, false otherwise.</returns>
+        private async Task<bool> VerifyAsync(byte[] input, byte[] signature, CancellationToken cancellation)
+        {
+            return await _client.VerifyAsync(_key.KeyId, Algorithm, _hash.ComputeHash(input), signature, cancellation);
         }
     }
 }
