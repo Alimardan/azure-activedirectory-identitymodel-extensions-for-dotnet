@@ -42,8 +42,8 @@ namespace Microsoft.IdentityModel.Tokens.Tests
             TokenValidationParameters validationParameters = new TokenValidationParameters();
             Type type = typeof(TokenValidationParameters);
             PropertyInfo[] properties = type.GetProperties();
-            if (properties.Length != 35)
-                Assert.True(false, "Number of properties has changed from 35 to: " + properties.Length + ", adjust tests");
+            if (properties.Length != 36)
+                Assert.True(false, "Number of properties has changed from 36 to: " + properties.Length + ", adjust tests");
 
             TokenValidationParameters actorValidationParameters = new TokenValidationParameters();
             SecurityKey issuerSigningKey = KeyingMaterial.DefaultX509Key_2048_Public;
@@ -68,6 +68,11 @@ namespace Microsoft.IdentityModel.Tokens.Tests
             string validIssuer = "ValidIssuer";
             List<string> validIssuers = new List<string> { validIssuer };
 
+            IDictionary<string, Object> propertyBag =
+                new Dictionary<string, Object>
+                {
+                    { "CustomKey", "CustomValue" }
+                };
 
             TokenValidationParameters validationParametersInline = new TokenValidationParameters()
             {
@@ -78,6 +83,7 @@ namespace Microsoft.IdentityModel.Tokens.Tests
                 IssuerSigningKeys = issuerSigningKeys,
                 IssuerValidator = ValidationDelegates.IssuerValidatorEcho,
                 LifetimeValidator = ValidationDelegates.LifetimeValidatorReturnsTrue,
+                PropertyBag = propertyBag,
                 SignatureValidator = ValidationDelegates.SignatureValidatorReturnsJwtTokenAsIs,
                 SaveSigninToken = true,
                 ValidateAudience = false,
@@ -90,6 +96,7 @@ namespace Microsoft.IdentityModel.Tokens.Tests
 
             Assert.True(object.ReferenceEquals(actorValidationParameters, validationParametersInline.ActorValidationParameters));
             Assert.True(object.ReferenceEquals(validationParametersInline.IssuerSigningKey, issuerSigningKey));
+            Assert.True(object.ReferenceEquals(validationParametersInline.PropertyBag, propertyBag));
             Assert.True(validationParametersInline.SaveSigninToken);
             Assert.False(validationParametersInline.ValidateAudience);
             Assert.False(validationParametersInline.ValidateIssuer);
@@ -105,6 +112,7 @@ namespace Microsoft.IdentityModel.Tokens.Tests
             validationParametersSets.IssuerSigningKeys = issuerSigningKeysDup;
             validationParametersSets.IssuerValidator = ValidationDelegates.IssuerValidatorEcho;
             validationParametersSets.LifetimeValidator = ValidationDelegates.LifetimeValidatorReturnsTrue;
+            validationParametersSets.PropertyBag = propertyBag;
             validationParametersSets.SignatureValidator = ValidationDelegates.SignatureValidatorReturnsJwtTokenAsIs;
             validationParametersSets.SaveSigninToken = true;
             validationParametersSets.ValidateAudience = false;
@@ -136,8 +144,8 @@ namespace Microsoft.IdentityModel.Tokens.Tests
             TokenValidationParameters validationParameters = new TokenValidationParameters();
             Type type = typeof(TokenValidationParameters);
             PropertyInfo[] properties = type.GetProperties();
-            if (properties.Length != 35)
-                Assert.True(false, "Number of public fields has changed from 35 to: " + properties.Length + ", adjust tests");
+            if (properties.Length != 36)
+                Assert.True(false, "Number of public fields has changed from 36 to: " + properties.Length + ", adjust tests");
 
             GetSetContext context =
                 new GetSetContext
@@ -170,6 +178,7 @@ namespace Microsoft.IdentityModel.Tokens.Tests
             Assert.Null(validationParameters.LifetimeValidator);
             Assert.Null(validationParameters.IssuerSigningKeyResolver);
             Assert.Null(validationParameters.IssuerValidator);
+            Assert.Null(validationParameters.PropertyBag);
             Assert.Null(validationParameters.ValidAudiences);
             Assert.Null(validationParameters.ValidIssuers);
             Assert.Null(validationParameters.SignatureValidator);
